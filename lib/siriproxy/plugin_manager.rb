@@ -9,7 +9,7 @@ class SiriProxy::PluginManager < Cora
   def initialize()
     load_plugins()
 
-    @tagger = Igo::Tagger.new('/home/hoshino/ym0_program/extlib/ipadic/ipadic')
+    @tagger = Igo::Tagger.new(File.expand_path("../../", __FILE__) + "/ipadic")
   end
 
   def get_kana(sentence)
