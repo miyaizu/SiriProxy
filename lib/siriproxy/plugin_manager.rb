@@ -1,11 +1,31 @@
 require 'cora'
 require 'pp'
+require 'igo-ruby'
+require 'romankana'
 
 class SiriProxy::PluginManager < Cora
   attr_accessor :plugins, :iphone_conn, :guzzoni_conn
 
   def initialize()
     load_plugins()
+
+    @tagger = Igo::Tagger.new('/home/hoshino/ym0_program/extlib/ipadic/ipadic')
+  end
+
+  def get_kana(sentence)
+    begin
+      yomi = ""
+      t = @tagger.parse(sentence)
+
+      t.each{ |m|
+        y = m.feature.split(",")[-2] 
+        yomi += y if y != "*"
+      }
+
+      return yomi.to_hiragana
+    rescue Exception=>e
+      return sentence
+    end
   end
 
   def load_plugins()
@@ -57,7 +77,7 @@ class SiriProxy::PluginManager < Cora
 
   def process(text)
     begin
-      result = super(text)
+      result = super(get_kana(text))
       self.guzzoni_conn.block_rest_of_session if result
       return result
     rescue Exception=>e
